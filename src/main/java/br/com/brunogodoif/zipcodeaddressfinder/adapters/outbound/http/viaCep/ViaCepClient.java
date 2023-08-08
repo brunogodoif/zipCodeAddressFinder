@@ -2,7 +2,7 @@ package br.com.brunogodoif.zipcodeaddressfinder.adapters.outbound.http.viaCep;
 
 import br.com.brunogodoif.zipcodeaddressfinder.adapters.outbound.http.viaCep.exception.AddresssNotFoundInSourceException;
 import br.com.brunogodoif.zipcodeaddressfinder.adapters.outbound.http.viaCep.exception.ErrorCallingViaCepException;
-import br.com.brunogodoif.zipcodeaddressfinder.common.zipcode.ZipCodeUtil;
+import br.com.brunogodoif.zipcodeaddressfinder.commons.zipcode.ZipCodeUtil;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;

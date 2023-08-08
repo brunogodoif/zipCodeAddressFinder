@@ -1,14 +1,12 @@
 package br.com.brunogodoif.zipcodeaddressfinder.core.services;
 
 import br.com.brunogodoif.zipcodeaddressfinder.adapters.outbound.http.viaCep.ViaCepAddresResponse;
-import br.com.brunogodoif.zipcodeaddressfinder.adapters.outbound.http.viaCep.ViaCepClient;
-import br.com.brunogodoif.zipcodeaddressfinder.common.zipcode.ZipCodeUtil;
+import br.com.brunogodoif.zipcodeaddressfinder.commons.zipcode.ZipCodeUtil;
 import br.com.brunogodoif.zipcodeaddressfinder.core.domain.AddressDomain;
 import br.com.brunogodoif.zipcodeaddressfinder.core.domain.CityDomain;
 import br.com.brunogodoif.zipcodeaddressfinder.core.domain.DistrictDomain;
 import br.com.brunogodoif.zipcodeaddressfinder.core.domain.StateDomain;
 import br.com.brunogodoif.zipcodeaddressfinder.core.ports.inbound.PersistNewAddressFromApiSourceServicePort;
-import br.com.brunogodoif.zipcodeaddressfinder.core.ports.inbound.SearchAddressFromSourceServicePort;
 import br.com.brunogodoif.zipcodeaddressfinder.core.ports.outbound.AddressAdapterPort;
 import br.com.brunogodoif.zipcodeaddressfinder.core.ports.outbound.CityAdapterPort;
 import br.com.brunogodoif.zipcodeaddressfinder.core.ports.outbound.DistrictAdapterPort;

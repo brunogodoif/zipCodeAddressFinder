@@ -1,4 +1,4 @@
-package br.com.brunogodoif.zipcodeaddressfinder.common.zipcode.exceptions;
+package br.com.brunogodoif.zipcodeaddressfinder.commons.zipcode.exceptions;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;

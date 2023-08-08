@@ -1,7 +1,7 @@
-package br.com.brunogodoif.zipcodeaddressfinder.common.zipcode;
+package br.com.brunogodoif.zipcodeaddressfinder.commons.zipcode;
 
-import br.com.brunogodoif.zipcodeaddressfinder.common.zipcode.exceptions.ZipCodeException;
-import br.com.brunogodoif.zipcodeaddressfinder.common.zipcode.exceptions.ZipCodeFormatException;
+import br.com.brunogodoif.zipcodeaddressfinder.commons.zipcode.exceptions.ZipCodeException;
+import br.com.brunogodoif.zipcodeaddressfinder.commons.zipcode.exceptions.ZipCodeFormatException;
 import org.apache.commons.lang3.StringUtils;
 
 public class ZipCodeUtil {

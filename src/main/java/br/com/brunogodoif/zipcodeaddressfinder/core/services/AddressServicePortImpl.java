@@ -1,7 +1,7 @@
 package br.com.brunogodoif.zipcodeaddressfinder.core.services;
 
 import br.com.brunogodoif.zipcodeaddressfinder.adapters.outbound.http.viaCep.ViaCepAddresResponse;
-import br.com.brunogodoif.zipcodeaddressfinder.common.zipcode.ZipCodeUtil;
+import br.com.brunogodoif.zipcodeaddressfinder.commons.zipcode.ZipCodeUtil;
 import br.com.brunogodoif.zipcodeaddressfinder.core.domain.AddressDomain;
 import br.com.brunogodoif.zipcodeaddressfinder.core.domain.pagination.PaginationRequest;
 import br.com.brunogodoif.zipcodeaddressfinder.core.domain.pagination.PaginationResponse;
