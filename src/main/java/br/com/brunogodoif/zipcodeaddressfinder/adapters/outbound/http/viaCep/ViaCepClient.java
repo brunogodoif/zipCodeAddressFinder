@@ -2,7 +2,7 @@ package br.com.brunogodoif.zipcodeaddressfinder.adapters.outbound.http.viaCep;
 
 import br.com.brunogodoif.zipcodeaddressfinder.adapters.outbound.http.viaCep.exception.AddresssNotFoundInSourceException;
 import br.com.brunogodoif.zipcodeaddressfinder.adapters.outbound.http.viaCep.exception.ErrorCallingViaCepException;
-import br.com.brunogodoif.zipcodeaddressfinder.commons.zipcode.ZipCodeUtil;
+import br.com.brunogodoif.zipcodeaddressfinder.commons.ZipCodeUtil;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -12,16 +12,19 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.time.Duration;
 
 @Slf4j
 public class ViaCepClient {
 
     private static final String VIA_CEP_URL = "https://viacep.com.br/ws/";
 
-    private ViaCepClient() {
+    private final HttpClient httpClient;
+
+    public ViaCepClient(HttpClient httpClient) {
+        this.httpClient = httpClient;
     }
-    public static ViaCepAddresResponse findByZipCode(String cepString) {
+
+    public ViaCepAddresResponse findByZipCode(String cepString) {
         ZipCodeUtil.validate(cepString);
         try {
             log.info("[VIA CEP] - [ZIP CODE: {}]", cepString);
@@ -31,9 +34,7 @@ public class ViaCepClient {
                     .uri(URI.create(VIA_CEP_URL + cepString + "/json"))
                     .build();
 
-            HttpResponse<String> httpResponse = HttpClient.newBuilder()
-                    .connectTimeout(Duration.ofMinutes(1))
-                    .build()
+            HttpResponse<String> httpResponse = httpClient
                     .send(httpRequest, HttpResponse.BodyHandlers.ofString());
 
             log.info("[VIA CEP] - [RESPONSE: {}]", httpResponse.body());
@@ -42,7 +43,7 @@ public class ViaCepClient {
             JsonNode responseJson = objectMapper.readTree(httpResponse.body());
 
             if (responseJson.has("erro") && responseJson.get("erro").asBoolean()) {
-                throw new AddresssNotFoundInSourceException("Error in ViaCep API response or zipCode not found: " + responseJson.toString());
+                throw new AddresssNotFoundInSourceException("Error in ViaCep API response or zipCode not found: " + responseJson);
             }
 
             return objectMapper.readValue(httpResponse.body(), ViaCepAddresResponse.class);

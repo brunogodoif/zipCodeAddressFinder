@@ -1,11 +1,9 @@
 package br.com.brunogodoif.zipcodeaddressfinder.adapters.outbound;
 
 import br.com.brunogodoif.zipcodeaddressfinder.adapters.outbound.persistence.entities.AddressEntity;
-import br.com.brunogodoif.zipcodeaddressfinder.adapters.outbound.persistence.entities.CityEntity;
-import br.com.brunogodoif.zipcodeaddressfinder.adapters.outbound.persistence.entities.DistrictEntity;
 import br.com.brunogodoif.zipcodeaddressfinder.adapters.outbound.persistence.repository.AddressRepository;
 import br.com.brunogodoif.zipcodeaddressfinder.adapters.outbound.persistence.specifications.SpecificationTemplate;
-import br.com.brunogodoif.zipcodeaddressfinder.core.domain.*;
+import br.com.brunogodoif.zipcodeaddressfinder.core.domain.AddressDomain;
 import br.com.brunogodoif.zipcodeaddressfinder.core.domain.pagination.PaginationRequest;
 import br.com.brunogodoif.zipcodeaddressfinder.core.domain.request.AddressSearch;
 import br.com.brunogodoif.zipcodeaddressfinder.core.ports.outbound.AddressAdapterPort;
@@ -15,9 +13,11 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -28,6 +28,8 @@ public class AddressAdapterPortImpl implements AddressAdapterPort {
     private final AddressRepository addressRepository;
     private final ModelMapper modelMapper;
 
+    @PersistenceContext private EntityManager entityManager;
+
     public AddressAdapterPortImpl(AddressRepository addressRepository, ModelMapper modelMapper) {
         this.addressRepository = addressRepository;
         this.modelMapper = modelMapper;
@@ -37,17 +39,15 @@ public class AddressAdapterPortImpl implements AddressAdapterPort {
     public Page<AddressDomain> findAll(AddressSearch addressSearch, PaginationRequest paginationRequest) {
 
         Pageable pageable = PageRequest.of(paginationRequest.getPageNumber() - 1, paginationRequest.getPageSize());
-        SpecificationTemplate.AddressSpec addressSpec = SpecificationTemplate.convertToAddressSpec(addressSearch);
 
-        Page<AddressEntity> all = this.addressRepository.findAll(addressSpec, pageable);
+        Page<AddressEntity> all = this.addressRepository.findAll(
+                SpecificationTemplate.convertToAddressSpec(addressSearch), pageable);
 
         if (all.isEmpty()) {
             return Page.empty();
         }
 
-        List<AddressDomain> addressDomainList = all
-                .stream()
-                .map(this::convertAddressEntityToDomain)
+        List<AddressDomain> addressDomainList = all.stream().map(AddressDomain::toDomain)
                 .collect(Collectors.toList());
 
         return new PageImpl<>(addressDomainList, pageable, all.getTotalElements());
@@ -57,68 +57,38 @@ public class AddressAdapterPortImpl implements AddressAdapterPort {
     @Override
     public Optional<AddressDomain> getByZipCode(String zipCode) {
 
-        Optional<AddressEntity> byZipCodeOptional = this.addressRepository.findByZipCode(zipCode);
-
-        if (!byZipCodeOptional.isPresent()) {
-            return Optional.empty();
-        }
-
-        return Optional.of(this.convertAddressEntityToDomain(byZipCodeOptional.get()));
+        return addressRepository.findByZipCode(zipCode)
+                                .flatMap(addressEntity -> Optional.of(AddressDomain.toDomain(addressEntity)));
     }
 
-    @Override
+    @Override @Transactional
     public AddressDomain persist(AddressDomain addressDomain) {
         AddressEntity save = this.addressRepository.save(modelMapper.map(addressDomain, AddressEntity.class));
-        return this.convertAddressEntityToDomain(save);
+        return AddressDomain.toDomain(save);
     }
 
-    public AddressDomain convertAddressEntityToDomain(AddressEntity addressEntity) {
+    @Override @Transactional(propagation = Propagation.REQUIRED)
+    public void persistBatch(List<AddressDomain> addressDomains) {
+        int batchSize = 1000; // Tamanho do sub-lote para flush
+        int count = 0;
 
-        return new AddressDomain(
-                addressEntity.getZipCode(),
-                addressEntity.getAddressComplete(),
-                addressEntity.getTypeAddress(),
-                addressEntity.getAddress(),
-                new DistrictDomain(
-                        addressEntity.getDistrict().getId(),
-                        addressEntity.getDistrict().getDistrict(),
-                        addressEntity.getDistrict().getLatitude(),
-                        addressEntity.getDistrict().getLongitude(),
-                        addressEntity.getDistrict().getCreatedAt(),
-                        addressEntity.getDistrict().getUpdatedAt()
-                ),
-                new CityDomain(
-                        addressEntity.getCity().getId(),
-                        addressEntity.getCity().getCity(),
-                        addressEntity.getCity().getLatitude(),
-                        addressEntity.getCity().getLongitude(),
-                        addressEntity.getCity().getDddCode(),
-                        addressEntity.getCity().getCreatedAt(),
-                        addressEntity.getCity().getUpdatedAt()
-                ),
-                new StateDomain(
-                        addressEntity.getState().getId(),
-                        addressEntity.getState().getState(),
-                        addressEntity.getState().getCapital(),
-                        addressEntity.getState().getUf(),
-                        addressEntity.getState().getLatitude(),
-                        addressEntity.getState().getLongitude(),
-                        addressEntity.getState().getCreatedAt(),
-                        addressEntity.getState().getUpdatedAt()
-                ),
-                new RegionDomain(
-                        addressEntity.getRegion().getId(),
-                        addressEntity.getRegion().getRegion(),
-                        addressEntity.getRegion().getCreatedAt(),
-                        addressEntity.getRegion().getUpdatedAt()
-                ),
-                addressEntity.getLatitude(),
-                addressEntity.getLongitude(),
-                addressEntity.getActive(),
-                addressEntity.getCreatedAt(),
-                addressEntity.getUpdatedAt()
-        );
+        for (AddressDomain addressDomain : addressDomains) {
+            AddressEntity addressEntity = modelMapper.map(addressDomain, AddressEntity.class);
+            entityManager.persist(addressEntity);
+            count++;
 
+            // Faz flush e limpa o contexto de persistência a cada batchSize registros
+            if (count % batchSize == 0) {
+                entityManager.flush();
+                entityManager.clear();
+            }
+        }
 
+        // Garante que os registros restantes sejam persistidos
+        if (count % batchSize != 0) {
+            entityManager.flush();
+            entityManager.clear();
+        }
     }
+
 }
