@@ -42,7 +42,7 @@ public class SpecificationTemplate {
             }
             if (addressSearch.getState() != null) {
                 Join<AddressEntity, StateEntity> stateJoin = root.join("state", JoinType.INNER);
-                predicate = builder.and(predicate, builder.equal(builder.lower(stateJoin.get("uf")), addressSearch.getState().toUpperCase()));
+                predicate = builder.and(predicate, builder.equal(builder.lower(stateJoin.get("uf")), addressSearch.getState().toLowerCase()));
             }
 
             return predicate;
