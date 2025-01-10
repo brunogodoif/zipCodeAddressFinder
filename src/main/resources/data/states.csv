@@ -1,0 +1,28 @@
+id;estado;uf;latitude;longitude;capital;id_regiao
+1;Acre;AC;-9.02379640;-70.81199530;Rio Branco;1
+2;Alagoas;AL;-9.57130580;-36.78195050;Maceió;2
+3;Amazonas;AM;-3.41684270;-65.85606460;Manaus;1
+4;Amapá;AP;0.90199250;-52.00295650;Macapá;1
+5;Bahia;BA;-12.57973800;-41.70072720;Salvador;2
+6;Ceará;CE;-5.49839770;-39.32062410;Fortaleza;2
+7;Distrito Federal;DF;-15.79976540;-47.86447150;Brasília;3
+8;Espírito Santo;ES;-19.18342290;-40.30886260;Vitória;4
+9;Goiás;GO;-15.82703690;-49.83622370;Goiânia;3
+10;Maranhão;MA;-4.96094980;-45.27441590;São Luiz;2
+11;Minas Gerais;MG;-18.51217800;-44.55503080;Belo Horizonte;4
+12;Mato Grosso do Sul;MS;-20.77222950;-54.78515310;Campo Grande;3
+13;Mato Grosso;MT;-12.68187120;-56.92109900;Cuiabá;3
+14;Pará;PA;-1.99812710;-54.93061520;Belém;1
+15;Paraíba;PB;-7.23996090;-36.78195050;João Pessoa;2
+16;Pernambuco;PE;-8.81371730;-36.95410700;Recife;2
+17;Piauí;PI;-7.71834010;-42.72892360;Terezina;2
+18;Paraná;PR;-25.25208880;-52.02154150;Curitiba;5
+19;Rio de Janeiro;RJ;-22.90684670;-43.17289650;Rio de Janeiro;4
+20;Rio Grande do Norte;RN;-5.40258030;-36.95410700;Natal;2
+21;Rondônia;RO;-11.50573410;-63.58061100;Porto Velho;1
+22;Roraima;RR;2.73759710;-62.07509980;Boa Vista;1
+23;Rio Grande do Sul;RS;-30.03463160;-51.21769860;Porto Alegre;5
+24;Santa Catarina;SC;-27.24233920;-50.21885560;Florianópolis;5
+25;Sergipe;SE;-10.57409340;-37.38565810;Aracajú;2
+26;São Paulo;SP;-23.55051990;-46.63330940;São Paulo;4
+27;Tocantins;TO;-10.17528000;-48.29824740;Palmas;1
