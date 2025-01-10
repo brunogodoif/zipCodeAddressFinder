@@ -8,13 +8,16 @@ import br.com.brunogodoif.zipcodeaddressfinder.core.ports.inbound.SearchAddressF
 import br.com.brunogodoif.zipcodeaddressfinder.core.services.exception.AddressNotFoundInSourceException;
 import org.springframework.stereotype.Component;
 
+import java.net.http.HttpClient;
+
 @Component
 public class SearchAddressFromSourceServicePortImpl implements SearchAddressFromSourceServicePort {
 
     @Override
     public ViaCepAddresResponse search(String zipCode) {
         try {
-            return ViaCepClient.findByZipCode(zipCode);
+            ViaCepClient viaCepClient = new ViaCepClient(HttpClient.newHttpClient());
+            return viaCepClient.findByZipCode(zipCode);
         } catch (ErrorCallingViaCepException | AddresssNotFoundInSourceException e) {
             throw new AddressNotFoundInSourceException(e.getMessage());
         }

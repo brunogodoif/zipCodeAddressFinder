@@ -1,14 +1,14 @@
 package br.com.brunogodoif.zipcodeaddressfinder.core.services;
 
 import br.com.brunogodoif.zipcodeaddressfinder.adapters.outbound.http.viaCep.ViaCepAddresResponse;
-import br.com.brunogodoif.zipcodeaddressfinder.commons.zipcode.ZipCodeUtil;
+import br.com.brunogodoif.zipcodeaddressfinder.commons.ZipCodeUtil;
 import br.com.brunogodoif.zipcodeaddressfinder.core.domain.AddressDomain;
 import br.com.brunogodoif.zipcodeaddressfinder.core.domain.pagination.PaginationRequest;
 import br.com.brunogodoif.zipcodeaddressfinder.core.domain.pagination.PaginationResponse;
 import br.com.brunogodoif.zipcodeaddressfinder.core.domain.request.AddressSearch;
 import br.com.brunogodoif.zipcodeaddressfinder.core.domain.response.ListingAddressResponse;
 import br.com.brunogodoif.zipcodeaddressfinder.core.ports.inbound.AddressServicePort;
-import br.com.brunogodoif.zipcodeaddressfinder.core.ports.inbound.PersistNewAddressFromApiSourceServicePort;
+import br.com.brunogodoif.zipcodeaddressfinder.core.ports.inbound.PersistAddressServicePort;
 import br.com.brunogodoif.zipcodeaddressfinder.core.ports.inbound.SearchAddressFromSourceServicePort;
 import br.com.brunogodoif.zipcodeaddressfinder.core.ports.outbound.AddressAdapterPort;
 import br.com.brunogodoif.zipcodeaddressfinder.core.services.exception.AddressNotFoundException;
@@ -22,12 +22,12 @@ public class AddressServicePortImpl implements AddressServicePort {
 
     private final AddressAdapterPort addressAdapterPort;
     private final SearchAddressFromSourceServicePort searchAddressFromSourceServicePort;
-    private final PersistNewAddressFromApiSourceServicePort persistNewAddressFromApiSourceServicePort;
+    private final PersistAddressServicePort persistAddressServicePort;
 
-    public AddressServicePortImpl(AddressAdapterPort addressAdapterPort, SearchAddressFromSourceServicePort searchAddressFromSourceServicePort, PersistNewAddressFromApiSourceServicePort persistNewAddressFromApiSourceServicePort) {
+    public AddressServicePortImpl(AddressAdapterPort addressAdapterPort, SearchAddressFromSourceServicePort searchAddressFromSourceServicePort, PersistAddressServicePort persistAddressServicePort) {
         this.addressAdapterPort = addressAdapterPort;
         this.searchAddressFromSourceServicePort = searchAddressFromSourceServicePort;
-        this.persistNewAddressFromApiSourceServicePort = persistNewAddressFromApiSourceServicePort;
+        this.persistAddressServicePort = persistAddressServicePort;
     }
 
     @Override
@@ -52,7 +52,7 @@ public class AddressServicePortImpl implements AddressServicePort {
 
             ViaCepAddresResponse viaCepAddresFound = this.searchAddressFromSourceServicePort.search(zipCode);
 
-            this.persistNewAddressFromApiSourceServicePort.persist(viaCepAddresFound);
+            this.persistAddressServicePort.persist(viaCepAddresFound);
 
             return this.findByZipCode(zipCode);
 

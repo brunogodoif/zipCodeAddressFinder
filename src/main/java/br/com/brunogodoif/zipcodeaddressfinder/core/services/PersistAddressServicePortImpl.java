@@ -1,12 +1,12 @@
 package br.com.brunogodoif.zipcodeaddressfinder.core.services;
 
 import br.com.brunogodoif.zipcodeaddressfinder.adapters.outbound.http.viaCep.ViaCepAddresResponse;
-import br.com.brunogodoif.zipcodeaddressfinder.commons.zipcode.ZipCodeUtil;
+import br.com.brunogodoif.zipcodeaddressfinder.commons.ZipCodeUtil;
 import br.com.brunogodoif.zipcodeaddressfinder.core.domain.AddressDomain;
 import br.com.brunogodoif.zipcodeaddressfinder.core.domain.CityDomain;
 import br.com.brunogodoif.zipcodeaddressfinder.core.domain.DistrictDomain;
 import br.com.brunogodoif.zipcodeaddressfinder.core.domain.StateDomain;
-import br.com.brunogodoif.zipcodeaddressfinder.core.ports.inbound.PersistNewAddressFromApiSourceServicePort;
+import br.com.brunogodoif.zipcodeaddressfinder.core.ports.inbound.PersistAddressServicePort;
 import br.com.brunogodoif.zipcodeaddressfinder.core.ports.outbound.AddressAdapterPort;
 import br.com.brunogodoif.zipcodeaddressfinder.core.ports.outbound.CityAdapterPort;
 import br.com.brunogodoif.zipcodeaddressfinder.core.ports.outbound.DistrictAdapterPort;
@@ -20,7 +20,7 @@ import java.time.ZoneId;
 import java.util.Optional;
 
 @Component
-public class PersistNewAddressFromApiSourceServicePortImpl implements PersistNewAddressFromApiSourceServicePort {
+public class PersistAddressServicePortImpl implements PersistAddressServicePort {
 
     private final AddressAdapterPort addressAdapterPort;
     private final StateAdapterPort stateAdapterPort;
@@ -28,10 +28,10 @@ public class PersistNewAddressFromApiSourceServicePortImpl implements PersistNew
     private final DistrictAdapterPort districtAdapterPort;
     private static final String UTC_ZONE_ID = "UTC";
 
-    public PersistNewAddressFromApiSourceServicePortImpl(AddressAdapterPort addressAdapterPort,
-                                                         StateAdapterPort stateAdapterPort,
-                                                         CityAdapterPort cityAdapterPort,
-                                                         DistrictAdapterPort districtAdapterPort) {
+    public PersistAddressServicePortImpl(AddressAdapterPort addressAdapterPort,
+                                         StateAdapterPort stateAdapterPort,
+                                         CityAdapterPort cityAdapterPort,
+                                         DistrictAdapterPort districtAdapterPort) {
         this.addressAdapterPort = addressAdapterPort;
         this.stateAdapterPort = stateAdapterPort;
         this.cityAdapterPort = cityAdapterPort;
