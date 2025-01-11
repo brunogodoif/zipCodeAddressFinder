@@ -6,16 +6,22 @@ import br.com.brunogodoif.zipcodeaddressfinder.core.domain.CityDomain;
 import br.com.brunogodoif.zipcodeaddressfinder.core.ports.outbound.CityAdapterPort;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Component
 public class CityAdapterPortImpl implements CityAdapterPort {
 
     private final CityRepository cityRepository;
     private final ModelMapper modelMapper;
+
+    @PersistenceContext private EntityManager entityManager;
 
     public CityAdapterPortImpl(CityRepository cityRepository, ModelMapper modelMapper) {
         this.cityRepository = cityRepository;
@@ -24,31 +30,42 @@ public class CityAdapterPortImpl implements CityAdapterPort {
 
     @Override
     public Optional<CityDomain> getByCityName(String cityName) {
-        Optional<CityEntity> byCityName = this.cityRepository.findByCity(cityName);
-        if (!byCityName.isPresent()) {
-            return Optional.empty();
-        }
-
-        return Optional.of(this.convertCityEntityToDomain(byCityName.get()));
+        return cityRepository.findByCity(cityName).flatMap(cityEntity -> Optional.of(CityDomain.toDomain(cityEntity)));
     }
 
     @Override
     public CityDomain persist(CityDomain cityDomain) {
         CityEntity save = this.cityRepository.save(modelMapper.map(cityDomain, CityEntity.class));
-        return convertCityEntityToDomain(save);
+        return CityDomain.toDomain(save);
     }
 
-    public CityDomain convertCityEntityToDomain(CityEntity cityEntity) {
+    @Override @Transactional(propagation = Propagation.REQUIRED)
+    public void persistBatch(List<CityDomain> cityDomains) {
+        int batchSize = 1000; // Tamanho do sub-lote para flush
+        int count = 0;
 
-        return new CityDomain(
-                cityEntity.getId(),
-                cityEntity.getCity(),
-                cityEntity.getLatitude(),
-                cityEntity.getLongitude(),
-                cityEntity.getDddCode(),
-                cityEntity.getCreatedAt(),
-                cityEntity.getUpdatedAt()
-        );
+        for (CityDomain cityDomain : cityDomains) {
+            CityEntity cityEntity = modelMapper.map(cityDomain, CityEntity.class);
+            entityManager.persist(cityEntity);
+            count++;
+
+            // Faz flush e limpa o contexto de persistência a cada batchSize registros
+            if (count % batchSize == 0) {
+                entityManager.flush();
+                entityManager.clear();
+            }
+        }
+
+        // Garante que os registros restantes sejam persistidos
+        if (count % batchSize != 0) {
+            entityManager.flush();
+            entityManager.clear();
+        }
     }
 
+
+    @Transactional(readOnly = true)  @Override public List<CityDomain> findAll() {
+        List<CityEntity> cityEntities = cityRepository.findAll();
+        return cityEntities.stream().map(CityDomain::toDomain).collect(Collectors.toList());
+    }
 }

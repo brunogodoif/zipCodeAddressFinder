@@ -1,6 +1,6 @@
 package br.com.brunogodoif.zipcodeaddressfinder.adapters.inbound.controllers.dtos.response;
 
-import br.com.brunogodoif.zipcodeaddressfinder.common.zipcode.ZipCodeUtil;
+import br.com.brunogodoif.zipcodeaddressfinder.commons.ZipCodeUtil;
 import br.com.brunogodoif.zipcodeaddressfinder.core.domain.AddressDomain;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

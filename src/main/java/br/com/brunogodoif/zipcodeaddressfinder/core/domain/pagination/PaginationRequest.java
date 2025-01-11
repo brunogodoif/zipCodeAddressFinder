@@ -16,11 +16,11 @@ public class PaginationRequest {
     public PaginationRequest(int pageNumber, int pageSize) {
 
         if (pageNumber <= 0) {
-            throw new InvalidPageException("The current page value " + pageNumber + " is invalid! Value must be greater than zero.");
+            throw new InvalidPageException("The current page value [" + pageNumber + "] is invalid! Value must be greater than zero.");
         }
 
         if (pageSize <= 0 || pageSize > 30) {
-            throw new InvalidPageException("The size value " + pageSize + " is invalid! Value must be greater than zero and equal or less than one hundred.");
+            throw new InvalidPageException("The size value [" + pageSize + "] is invalid! Value must be greater than zero and equal or less than one hundred.");
         }
 
         this.pageNumber = pageNumber;

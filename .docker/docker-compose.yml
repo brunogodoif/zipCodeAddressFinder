@@ -1,0 +1,24 @@
+version: "3.9"
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: .docker/Dockerfile
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/zipcode_db
+      SPRING_DATASOURCE_USERNAME: zipcode_user
+      SPRING_DATASOURCE_PASSWORD: password123
+    depends_on:
+      - db
+
+  db:
+    image: postgres:15-alpine
+    container_name: postgres_db
+    environment:
+      POSTGRES_DB: zipcode_db
+      POSTGRES_USER: zipcode_user
+      POSTGRES_PASSWORD: password123
+    ports:
+      - "15432:5432"
