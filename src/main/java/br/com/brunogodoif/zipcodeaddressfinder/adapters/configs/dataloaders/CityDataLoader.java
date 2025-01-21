@@ -29,13 +29,13 @@ public class CityDataLoader extends BaseDataLoader<CityDomain> {
 
     private Map<Integer, StateDomain> stateCache;
 
-    @Value("classpath:data/cities.csv") private Resource citiesCsvResource;
+    @Value("classpath:data/cities.csv") private Resource[] citiesCsvResource;
 
     @Override protected String getScriptName() {
         return "CITIES";
     }
 
-    @Override protected Resource getCsvResource() {
+    @Override protected Resource[] getCsvResources() {
         return citiesCsvResource;
     }
 

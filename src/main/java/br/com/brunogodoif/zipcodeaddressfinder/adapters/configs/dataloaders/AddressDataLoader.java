@@ -19,7 +19,8 @@ import java.util.stream.Collectors;
 @Log4j2
 public class AddressDataLoader extends BaseDataLoader<AddressDomain> {
 
-    @Value("classpath:data/address.csv") private Resource addressesCsvResource;
+    @Value("classpath:data/address*.csv")
+    private Resource[] addressesCsvResources;
 
     @Autowired private RegionAdapterPortImpl regionAdapterPort;
     @Autowired private StateAdapterPortImpl stateAdapterPort;
@@ -36,8 +37,8 @@ public class AddressDataLoader extends BaseDataLoader<AddressDomain> {
         return "ADDRESS";
     }
 
-    @Override protected Resource getCsvResource() {
-        return addressesCsvResource;
+    @Override protected Resource[] getCsvResources() {
+        return addressesCsvResources;
     }
 
 
@@ -60,7 +61,6 @@ public class AddressDataLoader extends BaseDataLoader<AddressDomain> {
         DistrictDomain districtDomain = districtCache.get(districtId);
 
 
-        // Criar e retornar o objeto AddressDomain
         return new AddressDomain(zipCode, addressComplete, typeAddress, address, districtDomain, cityDomain,
                                  stateDomain, regionDomain, BigDecimal.valueOf(latitude), BigDecimal.valueOf(longitude),
                                  active, LocalDateTime.now(), LocalDateTime.now());

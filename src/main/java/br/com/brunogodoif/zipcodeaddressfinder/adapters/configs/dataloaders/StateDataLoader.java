@@ -30,7 +30,7 @@ public class StateDataLoader extends BaseDataLoader<StateDomain> {
     private Map<Integer, RegionDomain> regionCache;
 
     @Value("classpath:data/states.csv")
-    private Resource statesCsvResource;
+    private Resource[] statesCsvResource;
 
     @Override
     protected String getScriptName() {
@@ -38,7 +38,7 @@ public class StateDataLoader extends BaseDataLoader<StateDomain> {
     }
 
     @Override
-    protected Resource getCsvResource() {
+    protected Resource[] getCsvResources() {
         return statesCsvResource;
     }
 

@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 @Log4j2
 public class DistrictsDataLoader extends BaseDataLoader<DistrictDomain> {
 
-    @Value("classpath:data/districts.csv") private Resource districtsCsvResource;
+    @Value("classpath:data/districts.csv") private Resource[] districtsCsvResource;
 
     @Autowired private DistrictAdapterPortImpl districtAdapterPort;
 
@@ -33,7 +33,7 @@ public class DistrictsDataLoader extends BaseDataLoader<DistrictDomain> {
         return "DISTRICTS";
     }
 
-    @Override protected Resource getCsvResource() {
+    @Override protected Resource[] getCsvResources() {
         return districtsCsvResource;
     }
 

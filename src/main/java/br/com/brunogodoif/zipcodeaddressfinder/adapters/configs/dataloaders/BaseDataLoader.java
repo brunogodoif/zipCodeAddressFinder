@@ -26,10 +26,9 @@ public abstract class BaseDataLoader<T> {
     private final AtomicInteger totalPersisted = new AtomicInteger(0);
     private final AtomicInteger totalFailed = new AtomicInteger(0);
 
-    // Métodos abstratos que devem ser implementados pelos loaders específicos
     protected abstract String getScriptName();
 
-    protected abstract Resource getCsvResource();
+    protected abstract Resource[] getCsvResources();
 
     protected abstract T convertToEntity(CSVRecord record);
 
@@ -47,7 +46,7 @@ public abstract class BaseDataLoader<T> {
                 return;
             }
 
-            processCsvFile();
+            processCsvFiles();
             logFinalResults();
             scriptExecutionAdapterPort.markScriptAsExecuted(getScriptName());
 
@@ -69,7 +68,7 @@ public abstract class BaseDataLoader<T> {
             return false;
         }
 
-        if (getCsvResource() == null) {
+        if (getCsvResources() == null) {
             log.warn("O arquivo CSV não foi encontrado. Encerrando execução.");
             return false;
         }
@@ -78,40 +77,45 @@ public abstract class BaseDataLoader<T> {
         return true;
     }
 
-    private void processCsvFile() {
-        try (Reader reader = new InputStreamReader(getCsvResource().getInputStream()); CSVParser parser = new CSVParser(
-                reader, CSVFormat.DEFAULT.withHeader().withDelimiter(';'))) {
+    private void processCsvFiles() {
+        for (Resource resource : getCsvResources()) {
+            if (resource == null) {
+                log.warn("Recurso CSV nulo encontrado, ignorando...");
+                continue;
+            }
 
-            List<T> batch = new ArrayList<>();
-            List<CompletableFuture<Void>> futures = new ArrayList<>();
+            try (Reader reader = new InputStreamReader(resource.getInputStream());
+                 CSVParser parser = new CSVParser(reader, CSVFormat.DEFAULT.withHeader().withDelimiter(';'))) {
 
-            for (CSVRecord record : parser) {
-                try {
-                    T entity = convertToEntity(record);
-                    batch.add(entity);
-                    totalProcessed.incrementAndGet();
+                List<T> batch = new ArrayList<>();
+                List<CompletableFuture<Void>> futures = new ArrayList<>();
 
-                    if (batch.size() >= BATCH_SIZE) {
-                        futures.add(asyncBatchService.persistBatchAsync(new ArrayList<>(batch),
-                                                                        this)); // 'this' já referencia o BaseDataLoader<T>
+                for (CSVRecord record : parser) {
+                    try {
+                        T entity = convertToEntity(record);
+                        batch.add(entity);
+                        totalProcessed.incrementAndGet();
 
-                        batch.clear();
+                        if (batch.size() >= BATCH_SIZE) {
+                            futures.add(asyncBatchService.persistBatchAsync(new ArrayList<>(batch), this));
+                            batch.clear();
+                        }
+                    } catch (Exception e) {
+                        totalFailed.incrementAndGet();
+                        log.error("Erro ao processar a linha {}: {}", totalProcessed.get(), e.getMessage());
                     }
-                } catch (Exception e) {
-                    totalFailed.incrementAndGet();
-                    log.error("Erro ao processar a linha {}: {}", totalProcessed.get(), e.getMessage());
                 }
+
+                if (!batch.isEmpty()) {
+                    futures.add(asyncBatchService.persistBatchAsync(new ArrayList<>(batch), this));
+                }
+
+                CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+
+            } catch (Exception e) {
+                log.error("Erro ao processar arquivo CSV {}: {}", resource.getFilename(), e.getMessage(), e);
+                throw new RuntimeException("Falha ao processar arquivo CSV: " + resource.getFilename(), e);
             }
-
-            if (!batch.isEmpty()) {
-                futures.add(asyncBatchService.persistBatchAsync(new ArrayList<>(batch), this));
-            }
-
-            CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
-
-        } catch (Exception e) {
-            log.error("Erro ao processar arquivo CSV: {}", e.getMessage(), e);
-            throw new RuntimeException("Falha ao processar arquivo CSV", e);
         }
     }
 

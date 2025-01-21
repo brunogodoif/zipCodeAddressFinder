@@ -20,7 +20,7 @@ public class RegionDataLoader extends BaseDataLoader<RegionDomain> {
     private RegionAdapterPortImpl regionAdapterPort;
 
     @Value("classpath:data/regions.csv")
-    private Resource regionsCsvResource;
+    private Resource[] regionsCsvResource;
 
     @Override
     protected String getScriptName() {
@@ -28,7 +28,7 @@ public class RegionDataLoader extends BaseDataLoader<RegionDomain> {
     }
 
     @Override
-    protected Resource getCsvResource() {
+    protected Resource[] getCsvResources() {
         return regionsCsvResource;
     }
 
